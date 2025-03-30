@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Western USA Road Trip Mindmap</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background-color: #3c78d8;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .mindmap-container {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+        }
+        
+        #mindmap {
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            filter: brightness(1.1);
+        }
+        
+        .node-text {
+            font-size: 14px;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            font-size: 14px;
+            max-width: 250px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Two-Week Western USA Road Trip Mindmap</h1>
+        </div>
+        <div class="mindmap-container">
+            <div id="mindmap"></div>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Road Trip Mindmap Data
+        const data = {
+            name: "Western USA Road Trip (14 Days)",
+            children: [
+                {
+                    name: "Regions & Routes",
+                    children: [
+                        { 
+                            name: "California Coast", 
+                            description: "Scenic Highway 1 along the Pacific Ocean",
+                            children: [
+                                { name: "San Francisco", description: "Golden Gate Bridge, Alcatraz, Fisherman's Wharf" },
+                                { name: "Big Sur", description: "Dramatic coastline, Bixby Bridge, McWay Falls" },
+                                { name: "Santa Barbara", description: "Spanish architecture, beaches, wine country" }
+                            ]
+                        },
+                        { 
+                            name: "Southwest Loop", 
+                            description: "Desert landscapes and national parks",
+                            children: [
+                                { name: "Las Vegas", description: "The Strip, entertainment, gateway to Grand Canyon" },
+                                { name: "Grand Canyon", description: "South Rim views, hiking trails, helicopter tours" },
+                                { name: "Zion National Park", description: "The Narrows, Angels Landing, red rock formations" },
+                                { name: "Bryce Canyon", description: "Hoodoos, amphitheaters, stargazing" }
+                            ]
+                        },
+                        { 
+                            name: "Pacific Northwest", 
+                            description: "Lush forests, mountains, and coastline",
+                            children: [
+                                { name: "Seattle", description: "Space Needle, Pike Place Market, coffee culture" },
+                                { name: "Olympic National Park", description: "Rainforests, mountains, beaches" },
+                                { name: "Portland", description: "Food scene, gardens, Mount Hood" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Activities",
+                    children: [
+                        { 
+                            name: "Outdoor Adventures", 
+                            description: "Active experiences in nature",
+                            children: [
+                                { name: "Hiking", description: "Trail options for all experience levels" },
+                                { name: "Scenic Drives", description: "Pacific Coast Highway, Going-to-the-Sun Road" },
+                                { name: "Wildlife Watching", description: "Bison in Yellowstone, whales along the coast" },
+                                { name: "Photography", description: "Stunning landscapes and cityscapes" }
+                            ]
+                        },
+                        { 
+                            name: "Cultural Experiences", 
+                            description: "Engaging with local history and culture",
+                            children: [
+                                { name: "Museum Visits", description: "Art, history, and science museums" },
+                                { name: "Food Tourism", description: "Local cuisine and food tours" },
+                                { name: "Historic Sites", description: "Ghost towns, missions, indigenous landmarks" }
+                            ]
+                        },
+                        { 
+                            name: "Relaxation", 
+                            description: "Taking time to unwind",
+                            children: [
+                                { name: "Beach Days", description: "Pacific beaches from California to Washington" },
+                                { name: "Hot Springs", description: "Natural thermal springs in various locations" },
+                                { name: "Scenic Viewpoints", description: "Perfect spots for sunset watching" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Accommodations",
+                    children: [
+                        { name: "Hotels & Resorts", description: "Comfort and amenities in cities and tourist areas" },
+                        { name: "Camping & RV", description: "Immersive nature experience with flexibility" },
+                        { name: "Vacation Rentals", description: "Airbnb, VRBO for local living experience" },
+                        { name: "Unique Stays", description: "Treehouses, glamping, historic hotels" }
+                    ]
+                },
+                {
+                    name: "Practical Considerations",
+                    children: [
+                        { 
+                            name: "Best Time to Visit", 
+                            description: "Weather and crowd considerations",
+                            children: [
+                                { name: "Spring (Mar-May)", description: "Wildflowers, fewer crowds, moderate temperatures" },
+                                { name: "Summer (Jun-Aug)", description: "Peak season, warm weather, all attractions open" },
+                                { name: "Fall (Sep-Nov)", description: "Changing colors, cooler temperatures, fewer crowds" },
+                                { name: "Winter (Dec-Feb)", description: "Snow activities, lowest prices, some closures" }
+                            ]
+                        },
+                        { 
+                            name: "Transportation", 
+                            description: "Getting around efficiently",
+                            children: [
+                                { name: "Rental Car Options", description: "SUV recommended for varied terrain" },
+                                { name: "Road Conditions", description: "Mountain passes, desert roads, coastal highways" },
+                                { name: "Fuel Planning", description: "Long stretches without services in remote areas" }
+                            ]
+                        },
+                        { 
+                            name: "Budget Planning", 
+                            description: "Managing expenses effectively",
+                            children: [
+                                { name: "Park Passes", description: "America the Beautiful pass for multiple parks" },
+                                { name: "Food Costs", description: "Mix of dining out and self-catering" },
+                                { name: "Activity Fees", description: "Tours, attractions, and experiences" }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "Sample Itineraries",
+                    children: [
+                        { 
+                            name: "Coastal Journey", 
+                            description: "San Francisco to Seattle along the coast",
+                            children: [
+                                { name: "Days 1-3: San Francisco", description: "City exploration and day trips" },
+                                { name: "Days 4-5: Redwood Forests", description: "Avenue of the Giants, hiking" },
+                                { name: "Days 6-7: Oregon Coast", description: "Cannon Beach, Newport, sand dunes" },
+                                { name: "Days 8-10: Olympic Peninsula", description: "Rainforest, Hurricane Ridge, beaches" },
+                                { name: "Days 11-14: Seattle & surroundings", description: "City sights and Mount Rainier" }
+                            ]
+                        },
+                        { 
+                            name: "Desert & Canyons Loop", 
+                            description: "Las Vegas based loop through national parks",
+                            children: [
+                                { name: "Days 1-2: Las Vegas", description: "City entertainment and preparation" },
+                                { name: "Days 3-4: Zion National Park", description: "Hiking and canyoneering" },
+                                { name: "Day 5: Bryce Canyon", description: "Viewpoints and short hikes" },
+                                { name: "Days 6-7: Capitol Reef & Moab", description: "Scenic drives and arches" },
+                                { name: "Days 8-9: Monument Valley & Antelope Canyon", description: "Navajo lands and slot canyons" },
+                                { name: "Days 10-12: Grand Canyon", description: "South Rim exploration" },
+                                { name: "Days 13-14: Return via Hoover Dam", description: "Dam tour and return to Vegas" }
+                            ]
+                        },
+                        { 
+                            name: "National Parks Expedition", 
+                            description: "Focus on western national parks",
+                            children: [
+                                { name: "Days 1-3: Yellowstone", description: "Geysers, wildlife, thermal features" },
+                                { name: "Day 4: Grand Teton", description: "Mountain scenery and lakes" },
+                                { name: "Days 5-6: Salt Lake City & Drive", description: "Urban break and transit" },
+                                { name: "Days 7-8: Arches & Canyonlands", description: "Desert landscapes and rock formations" },
+                                { name: "Days 9-10: Mesa Verde", description: "Ancient cliff dwellings" },
+                                { name: "Days 11-12: Grand Canyon", description: "Rim views and hiking" },
+                                { name: "Days 13-14: Las Vegas & departure", description: "Final relaxation and flights home" }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Setup the mindmap visualization
+        const width = document.getElementById('mindmap').clientWidth;
+        const height = document.getElementById('mindmap').clientHeight;
+        
+        // Create a color scale for the nodes
+        const colorScale = d3.scaleOrdinal()
+            .domain(["Regions & Routes", "Activities", "Accommodations", "Practical Considerations", "Sample Itineraries"])
+            .range(["#4285F4", "#EA4335", "#FBBC05", "#34A853", "#AA46BC"]);
+        
+        // Create the SVG
+        const svg = d3.select("#mindmap")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", `translate(${width / 2}, ${height / 2})`);
+        
+        // Create the hierarchical layout
+        const root = d3.hierarchy(data);
+        const treeLayout = d3.tree()
+            .size([2 * Math.PI, Math.min(width, height) / 3])
+            .separation((a, b) => (a.parent == b.parent ? 1 : 2) / a.depth);
+        
+        // Set up the radial layout
+        treeLayout(root);
+        
+        // Create tooltip
+        const tooltip = d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+        
+        // Create the links between nodes
+        const link = svg.selectAll(".link")
+            .data(root.links())
+            .enter()
+            .append("path")
+            .attr("class", "link")
+            .attr("d", d3.linkRadial()
+                .angle(d => d.x)
+                .radius(d => d.y));
+        
+        // Create the node groups
+        const node = svg.selectAll(".node")
+            .data(root.descendants())
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .attr("transform", d => `
+                translate(${Math.sin(d.x) * d.y},${-Math.cos(d.x) * d.y})
+            `)
+            .on("mouseover", function(event, d) {
+                d3.select(this).select("circle")
+                    .transition()
+                    .duration(300)
+                    .attr("r", d => d.depth === 0 ? 25 : d.depth === 1 ? 15 : 8);
+                
+                if (d.data.description) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`<strong>${d.data.name}</strong><br>${d.data.description}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                }
+            })
+            .on("mouseout", function(d) {
+                d3.select(this).select("circle")
+                    .transition()
+                    .duration(300)
+                    .attr("r", d => d.depth === 0 ? 20 : d.depth === 1 ? 12 : 6);
+                
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            })
+            .on("click", function(event, d) {
+                // Toggle children on click
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
+                }
+                // Update the visualization
+                update(d);
+            });
+        
+        // Add circles to the nodes
+        node.append("circle")
+            .attr("r", d => d.depth === 0 ? 20 : d.depth === 1 ? 12 : 6)
+            .style("fill", d => {
+                if (d.depth === 0) return "#8962d9";
+                if (d.depth === 1) return colorScale(d.data.name);
+                if (d.depth === 2) return d3.color(colorScale(d.parent.data.name)).brighter(0.5);
+                return d3.color(colorScale(d.parent.parent.data.name)).brighter(1);
+            })
+            .style("stroke", d => {
+                if (d.depth === 0) return "#6841c0";
+                if (d.depth === 1) return d3.color(colorScale(d.data.name)).darker(0.5);
+                return "#fff";
+            })
+            .style("stroke-width", 2);
+        
+        // Add text labels
+        node.append("text")
+            .attr("class", "node-text")
+            .attr("dy", d => d.depth === 0 ? 35 : d.depth === 1 ? 25 : 15)
+            .attr("x", 0)
+            .attr("text-anchor", "middle")
+            .text(d => d.data.name)
+            .style("font-size", d => d.depth === 0 ? "16px" : d.depth === 1 ? "14px" : "12px")
+            .style("fill", d => d.depth === 0 ? "#333" : "#444")
+            .call(wrap, 120);
+        
+        // Function to wrap text
+        function wrap(text, width) {
+            text.each(function() {
+                const text = d3.select(this);
+                const words = text.text().split(/\s+/).reverse();
+                let word;
+                let line = [];
+                let lineNumber = 0;
+                const lineHeight = 1.1; // ems
+                const y = text.attr("y");
+                const dy = parseFloat(text.attr("dy"));
+                let tspan = text.text(null)
+                    .append("tspan")
+                    .attr("x", 0)
+                    .attr("y", y)
+                    .attr("dy", dy + "px");
+                
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan")
+                            .attr("x", 0)
+                            .attr("y", y)
+                            .attr("dy", ++lineNumber * lineHeight + dy + "px")
+                            .text(word);
+                    }
+                }
+            });
+        }
+        
+        // Function to update the visualization
+        function update(source) {
+            // Recalculate the layout
+            treeLayout(root);
+            
+            // Update the nodes
+            const node = svg.selectAll(".node")
+                .data(root.descendants(), d => d.id || (d.id = ++nodeId));
+            
+            // Enter new nodes
+            const nodeEnter = node.enter().append("g")
+                .attr("class", "node")
+                .attr("transform", d => `
+                    translate(${Math.sin(source.x) * source.y},${-Math.cos(source.x) * source.y})
+                `)
+                .on("mouseover", function(event, d) {
+                    d3.select(this).select("circle")
+                        .transition()
+                        .duration(300)
+                        .attr("r", d => d.depth === 0 ? 25 : d.depth === 1 ? 15 : 8);
+                    
+                    if (d.data.description) {
+                        tooltip.transition()
+                            .duration(200)
+                            .style("opacity", .9);
+                        tooltip.html(`<strong>${d.data.name}</strong><br>${d.data.description}`)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                    }
+                })
+                .on("mouseout", function(d) {
+                    d3.select(this).select("circle")
+                        .transition()
+                        .duration(300)
+                        .attr("r", d => d.depth === 0 ? 20 : d.depth === 1 ? 12 : 6);
+                    
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                })
+                .on("click", function(event, d) {
+                    // Toggle children on click
+                    if (d.children) {
+                        d._children = d.children;
+                        d.children = null;
+                    } else {
+                        d.children = d._children;
+                        d._children = null;
+                    }
+                    // Update the visualization
+                    update(d);
+                });
+            
+            // Add circles to new nodes
+            nodeEnter.append("circle")
+                .attr("r", 0)
+                .style("fill", d => {
+                    if (d.depth === 0) return "#8962d9";
+                    if (d.depth === 1) return colorScale(d.data.name);
+                    if (d.depth === 2) return d3.color(colorScale(d.parent.data.name)).brighter(0.5);
+                    return d3.color(colorScale(d.parent.parent.data.name)).brighter(1);
+                })
+                .style("stroke", d => {
+                    if (d.depth === 0) return "#6841c0";
+                    if (d.depth === 1) return d3.color(colorScale(d.data.name)).darker(0.5);
+                    return "#fff";
+                })
+                .style("stroke-width", 2)
+                .transition()
+                .duration(750)
+                .attr("r", d => d.depth === 0 ? 20 : d.depth === 1 ? 12 : 6);
+            
+            // Add text labels to new nodes
+            nodeEnter.append("text")
+                .attr("class", "node-text")
+                .attr("dy", d => d.depth === 0 ? 35 : d.depth === 1 ? 25 : 15)
+                .attr("x", 0)
+                .attr("text-anchor", "middle")
+                .text(d => d.data.name)
+                .style("font-size", d => d.depth === 0 ? "16px" : d.depth === 1 ? "14px" : "12px")
+                .style("fill", d => d.depth === 0 ? "#333" : "#444")
+                .style("fill-opacity", 0)
+                .transition()
+                .duration(750)
+                .style("fill-opacity", 1)
+                .call(wrap, 120);
+            
+            // Update existing nodes positions
+            const nodeUpdate = nodeEnter.merge(node);
+            nodeUpdate.transition()
+                .duration(750)
+                .attr("transform", d => `
+                    translate(${Math.sin(d.x) * d.y},${-Math.cos(d.x) * d.y})
+                `);
+            
+            // Remove exiting nodes
+            const nodeExit = node.exit()
+                .transition()
+                .duration(750)
+                .attr("transform", d => `
+                    translate(${Math.sin(source.x) * source.y},${-Math.cos(source.x) * source.y})
+                `)
+                .remove();
+            
+            nodeExit.select("circle")
+                .attr("r", 0);
+            
+            nodeExit.select("text")
+                .style("fill-opacity", 0);
+            
+            // Update the links
+            const link = svg.selectAll(".link")
+                .data(root.links(), d => d.target.id);
+            
+            // Enter new links
+            const linkEnter = link.enter().insert("path", "g")
+                .attr("class", "link")
+                .attr("d", d => {
+                    const o = {x: source.x, y: source.y};
+                    return d3.linkRadial()
+                        .angle(d => d.x)
+                        .radius(d => d.y)
+                        ({source: o, target: o});
+                });
+            
+            // Update existing links
+            linkEnter.merge(link)
+                .transition()
+                .duration(750)
+                .attr("d", d3.linkRadial()
+                    .angle(d => d.x)
+                    .radius(d => d.y));
+            
+            // Remove exiting links
+            link.exit()
+                .transition()
+                .duration(750)
+                .attr("d", d => {
+                    const o = {x: source.x, y: source.y};
+                    return d3.linkRadial()
+                        .angle(d => d.x)
+                        .radius(d => d.y)
+                        ({source: o, target: o});
+                })
+                .remove();
+        }
+        
+        // Variable to assign unique IDs to nodes for the update process
+        let nodeId = 0;
+    </script>
+</body>
+</html>
